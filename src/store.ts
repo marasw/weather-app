@@ -15,10 +15,8 @@ import citySearchReducer, {
     setInputSuccess,
     setCitySuccess,
     setFilteredCitiesSuccess,
+    defaultCoords,
 } from './state/citySearchSlice';
-
-// default coordinates (London)
-const london: Coord = { "lon": -0.12574, "lat": 51.50853 };
 
 const listenerMiddleware = createListenerMiddleware();
 
@@ -38,7 +36,7 @@ listenerMiddleware.startListening({
         if ( countryCode == 'US' || countryCode == 'LR' || countryCode == 'MM' ) {
             listenerApi.dispatch(setUnitSystemSuccess('imperial')); // USA, Liberia, Myanmar
         } else {
-            listenerApi.dispatch(setUnitSystemSuccess('metric'));   
+            listenerApi.dispatch(setUnitSystemSuccess('metric'));   // metric imperial
         }
         listenerApi.dispatch(setLocation({}));
     },
@@ -47,7 +45,7 @@ listenerMiddleware.startListening({
 listenerMiddleware.startListening({
     actionCreator: setLocation,
     effect: async (_, listenerApi) => { 
-      listenerApi.dispatch(setLocationSuccess(london)); // coords
+      listenerApi.dispatch(setLocationSuccess(defaultCoords));
     },
 });
 
@@ -62,7 +60,7 @@ listenerMiddleware.startListening({
     actionCreator: setWeather,
     effect: async (_ ,listenerApi) => {
         const state: RootState = listenerApi.getState() as RootState;
-        const location: Coord = state.weather.location || london; // { lat: -1, lon: -1 };
+        const location: Coord = state.weather.location || defaultCoords;
         const current = 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m';
         const daily = 'weather_code,temperature_2m_max,temperature_2m_min';
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&current=${current}&daily=${daily}`;
@@ -78,6 +76,13 @@ listenerMiddleware.startListening({
 });
 
 listenerMiddleware.startListening({
+    actionCreator: setWeatherSuccess,
+    effect: async (_ ,listenerApi) => {
+        listenerApi.dispatch(setInputSuccess(""));
+    },
+});
+
+listenerMiddleware.startListening({
     actionCreator: setInputSuccess,
     effect: (action, listenerApi) => {
         if (action.payload.length > 2) {
@@ -85,8 +90,10 @@ listenerMiddleware.startListening({
                 const ucName = city.name.toLocaleUpperCase();
                 return ucName.includes(action.payload.toLocaleUpperCase());
             });
-            console.log(JSON.stringify(filtered));
+            //console.log(JSON.stringify(filtered));
             listenerApi.dispatch(setFilteredCitiesSuccess(filtered));
+        } else {
+            listenerApi.dispatch(setFilteredCitiesSuccess([]));
         }
     },
 });

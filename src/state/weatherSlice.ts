@@ -70,6 +70,27 @@ export interface Weather {
     wind_gusts_10m: number; // "km/h"
 }
 
+// export const defaultCoords: Coord = { "lon": -0.12574, "lat": 51.50853 };
+export const defaultWeather: Weather  = {
+    time: '',
+    interval: -1,
+    temperature_2m: -1,
+    relative_humidity_2m: -1,
+    apparent_temperature: -1,
+    is_day: -1,
+    precipitation: -1,
+    rain: -1,
+    showers: -1,
+    snowfall: -1,
+    weather_code: -1,
+    cloud_cover: -1,
+    pressure_msl: -1,
+    surface_pressure: -1,
+    wind_speed_10m: -1,
+    wind_direction_10m: -1,
+    wind_gusts_10m: -1,
+}
+
 export interface WeatherState {
     unitSystem: string;
     location?: Coord | null;
@@ -138,6 +159,42 @@ export const {
 } = weatherSlice.actions;
 
 export default weatherSlice.reducer;
+
+// time: "iso8601",
+// interval: "seconds",
+// temperature_2m: "°C",
+// relative_humidity_2m: "%",
+// apparent_temperature: "°C",
+// is_day: "",
+// precipitation: "mm",
+// rain: "mm",
+// showers: "mm",
+// snowfall: "cm",
+// weather_code: "wmo code",
+// cloud_cover: "%",
+// pressure_msl: "hPa",
+// surface_pressure: "hPa",
+// wind_speed_10m: "km/h",
+// wind_direction_10m: "°",
+// wind_gusts_10m: "km/h"
+
+export const imperialUnits = {
+  temperature_2m: "°F", // From °C
+  relative_humidity_2m: "%", // Remains the same
+  apparent_temperature: "°F", // From °C
+  is_day: "", // Remains the same
+  precipitation: "inches", // From mm
+  rain: "inches", // From mm
+  showers: "inches", // From mm
+  snowfall: "inches", // From cm
+  weather_code: "wmo code", // Remains the same
+  cloud_cover: "%", // Remains the same
+  pressure_msl: "inHg", // From hPa
+  surface_pressure: "inHg", // From hPa
+  wind_speed_10m: "mph", // From km/h
+  wind_direction_10m: "°", // Remains the same
+  wind_gusts_10m: "mph" // From km/h
+};
 
 // export interface WeatherOLD {
 //     lat: number

@@ -17,6 +17,10 @@ export interface CitySearchState {
     
 }
 
+export const defaultCoords: Coord = { "lon": -0.12574, "lat": 51.50853 };
+export const defaultCityName = 'London';
+export const defaultCountryCode = 'GB';
+
 const initialState: CitySearchState= {
     input: '',
     city: null,

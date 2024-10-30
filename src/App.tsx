@@ -1,29 +1,22 @@
 import { zip } from 'radash';
-import moment from 'moment';
 import { useAppSelector, useAppDispatch } from './hooks';;
 import CitySearch from './components/CitySearch';
 import { useEffect, useState } from 'react';
-import { setUnitSystem, Weather, WeatherDaily } from './state/weatherSlice';
-import { WeatherIcon } from './data/weatherCodes';
-
-interface WeatherDailyPrediction {
-  date: string, 
-  code: number,
-  min: number,
-  max: number,
-} 
+import { setLocation, setUnitSystem, Weather, WeatherDaily, defaultWeather } from './state/weatherSlice';
+import { defaultCityName, defaultCountryCode } from './state/citySearchSlice';
+import PredictionList, { WeatherDailyPrediction } from './components/PredictionList';
+import Prediction from './components/Prediction';
 
 function App() {
-  const { weatherPrediction } = useAppSelector((state) => state.weather);
+  const { weatherPrediction, location, unitSystem } = useAppSelector((state) => state.weather);
   const { city } = useAppSelector((state) => state.citySearch);
   const dispatch = useAppDispatch();
  
-  const [cityName, setCityName] = useState('London');
-  // const [countryCode, setCountryCode] = useState('XX');
-  const [dateS, setDateS] = useState(''); 
-  const [day, setDay] = useState('');
-  const [temperature, setTemperature] = useState(-200)
-  const [weatherCode, setWeatherCode] = useState(-1);
+  const [temperatureUnit, setTemperatureUnit] = useState("°C");
+  const [dateFormat, setDateFormat] = useState("DD.MM.YYYY");
+  const [cityName, setCityName] = useState(defaultCityName);
+  const [countryCode, setCountryCode] = useState(defaultCountryCode);
+  const [current, setCurrent] = useState<Weather>(defaultWeather);
   const [predictions, setPredictions] = useState<WeatherDailyPrediction[]>([]);
 
   const browserLocales = (languageCodeOnly = false) => {
@@ -34,23 +27,40 @@ function App() {
 
   useEffect(() => {
     dispatch(setUnitSystem(browserLocales(true).toUpperCase()));
+    const interval = setInterval(() => {
+      dispatch(setLocation(location));
+    }, 60*60*1000);
+    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    switch(unitSystem) {
+      case "imperial": 
+        setTemperatureUnit("°F");
+        setDateFormat("YYYY/MM/DD");
+        return;
+      default:
+        setTemperatureUnit("°C");
+        setDateFormat("DD.MM.YYYY");
+        return;
+  }
+  }, [unitSystem]);
 
   useEffect(() => {
     if (city) {
       setCityName(city.name);
-      // setCountryCode(city.country);
+      setCountryCode(city.country);
     }
   }, [city]);
 
   useEffect(() => {
-    if (weatherPrediction) {
-      const current: Weather = weatherPrediction.current;
+    setUnitSystem(countryCode);
+  }, [countryCode]);
 
-      setDateS(moment(current.time).format('DD.MM.YYYY'));
-      setDay(moment(current.time).format('dddd'));
-      setTemperature(current.temperature_2m);
-      setWeatherCode(current.weather_code);
+  useEffect(() => {
+    if (weatherPrediction) {
+      const cw: Weather = weatherPrediction.current;
+      setCurrent(cw);
       
       const daily: WeatherDaily = weatherPrediction.daily as WeatherDaily;
       const zipped = zip(daily.time, daily.weather_code, daily.temperature_2m_min, daily.temperature_2m_max); // _.
@@ -67,39 +77,19 @@ function App() {
       });
 
       setPredictions(zippedPredictions.slice(1, zippedPredictions.length));
-    }
+    }  
   }, [weatherPrediction]);
   
   return (
     <div className="flex h-screen justify-center text-center bg-orange-400">
       <div className="flex flex-col space-y-4 mt-8">
-        <div className="">
-          <CitySearch />
-        </div>
-        <div className="flex flex-col items-center">
-          <div className="">
-            <h1 className="text-3xl font-bold underline">
-              { cityName }
-            </h1>
-            <div className="flex items-center mt-4">
-              <WeatherIcon code={weatherCode} size={'12em'} />
-              <div className="flex flex-col">
-                <div className="text-l italic">{day} / {dateS}</div>
-                <div className="text-5xl font-bold">{temperature} °C</div>
-              </div>
-            </div>
+        <CitySearch />
+        <div className="flex h-full items-center">
+          <div className="flex flex-col">
+            <h1 className="text-3xl font-bold underline">{cityName}</h1>
+            <Prediction current={current} temperatureUnit={temperatureUnit} dateFormat={dateFormat} />
+            <PredictionList predictions={predictions} temperatureUnit={temperatureUnit} dateFormat={dateFormat} />
           </div>
-          {predictions.length > 0 && (
-            <ul className="space-y-4 mt-8">
-              {predictions.map((prediction: WeatherDailyPrediction , index: number) => (
-                <li className="flex flex-row space-x-8 items-center justify-between" key={index}>
-                  <div className="text-l italic">{moment(prediction.date).format('dddd')}/{moment(prediction.date).format('DD.MM.YYYY')}</div>
-                  <WeatherIcon code={prediction.code} size={'2em'} /> 
-                  <div className="text-l font-bold">min {prediction.min} °C max {prediction.max} °C</div>
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import * as importedCountries from './countries.json';
 
 // { "name": "Algeria", "code": "DZ" },
-interface Country { 
+export interface Country { 
     name: string, 
     code: string 
 }

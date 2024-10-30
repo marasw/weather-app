@@ -9,7 +9,7 @@ A React-based weather application that allows users to search for city-specific 
 - **Current Weather Display:** Shows the current weather, temperature, and weather condition icon.
 - **5-Day Forecast:** Displays a 5-day weather forecast with minimum and maximum temperatures and weather conditions.
 - **Browser Locale Integration:** Automatically adapts the temperature units (Celsius/Fahrenheit) based on the user's locale.
-- **Geolocation Support (Optional):** Detects user's location and shows the weather forecast for their current location.
+- **Geolocation Support:** Detects user's location and shows the weather forecast for their current location.
 - **Responsive Design:** Fully responsive design, optimized for both desktop and mobile devices.
 
 ## Technologies Used
@@ -20,13 +20,13 @@ A React-based weather application that allows users to search for city-specific 
 - **Moment.js:** For date formatting and manipulation.
 - **TypeScript:** Type-safe development for better code reliability.
 - **Tailwind CSS:** For styling the components and ensuring a responsive layout.
-- **Weather API:** Used to fetch weather data (replace with your specific API).
+- **OpenMeteo API:** Used to fetch weather data.
 
 ## Setup & Installation
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/react-weather-app.git
+   git clone https://github.com/marasw/weather-app.git
    cd react-weather-app
    ```
 
@@ -35,15 +35,7 @@ A React-based weather application that allows users to search for city-specific 
    npm install
    ```
 
-3. **Environment Variables:**
-   Create a `.env` file in the root directory to store your API key and any other configuration variables.
-
-   Example:
-   ```bash
-   REACT_APP_WEATHER_API_KEY=your_api_key
-   ```
-
-4. **Start the development server:**
+3. **Start the development server:**
    ```bash
    npm start
    ```
